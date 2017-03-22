@@ -9,31 +9,31 @@ if len(sys.argv) == 1:
 import lxml.etree as ET
 from StringIO import StringIO
 
-eng_file_count = 0
-
 for File in sys.argv:
 	if File == __file__:
 		continue
 	
-	tree = ET.parse(File)
-	
-	with open(File,'r') as f:
-		# read data form file into "data"
-		data = f.read()
-
-		# parse the file in memory
-		root = ET.parse(StringIO(data))
+	# if language == 'eng' proceed to next file
+	# use try/except to continue outer loop
+	try:
+		tree = ET.parse(File)
 		
-		# get the TextBlock element and store the language and ID attributes in respective vars, if they exist
-		for textblock in root.getiterator('{http://www.loc.gov/standards/alto/ns-v2#}TextBlock'):
-			if 'language' in  textblock.attrib:
-				lang  = textblock.attrib['language']
-			if 'ID' in textblock.attrib: 
-				id = textblock.attrib['ID']
-			
-			# if 'eng' found, print a message to that effect
-			if lang == 'eng':
-				eng_file_count = eng_file_count + 1
-				print File + ': "eng" detected in Textblock ID=' + id + '.'
+		with open(File,'r') as f:
+			# read data form file into "data"
+			data = f.read()
 
-
+			# parse the file in memory
+			root = ET.parse(StringIO(data))
+	
+			# get the TextBlock element and store the language and ID attributes in respective vars, if they exist
+			for textblock in root.getiterator('{http://www.loc.gov/standards/alto/ns-v2#}TextBlock'):
+				if 'language' in  textblock.attrib:
+					lang  = textblock.attrib['language']
+					
+					# if 'eng' found, print a message to t	hat effect
+					if lang == 'eng':
+						print File + ': "eng" detected.'
+						# "eng" found; proceed to next file
+						raise NextFile
+	except NextFile:
+		continue
